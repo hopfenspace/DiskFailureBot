@@ -21,7 +21,7 @@ def demo(bot, update):
 
     genAndRespond(update, broken)
 
-updater = Updater("614125047:AAHF18r1EaTd9KaveJnZIxsM3kT1mcu1QWw")
+updater = Updater("<telegram bot token here>")
 
 updater.dispatcher.add_handler(CommandHandler('status', status))
 updater.dispatcher.add_handler(CommandHandler('demo', demo))
