@@ -9,8 +9,12 @@ with open("./config.json", "r") as fd:
 	config = json.load(fd)
 
 updater = Updater(config["telegram_token"])
+currentlyBroken = []
 
 def sendFailures(broken):
+    global currentlyBroken
+    currentlyBroken = broken
+
     file = genAnimation(broken)
     with open(file, "r") as fd:
         updater.bot.send_animation(config["group_id"], fd)
@@ -21,7 +25,7 @@ def genAndRespond(update, broken):
         res = update.message.reply_animation(fd)
 
 def status(bot, update):
-    genAndRespond(update, [])
+    genAndRespond(update, currentlyBroken)
 
 def demo(bot, update):
     broken_bitset = random.randrange(1, 255)
