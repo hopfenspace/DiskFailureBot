@@ -12,6 +12,10 @@ def worker(failure_cb):
 		client, addr = sock.accept()
 		broken = []
 
+		if config["whitelist"] and addr[0] not in config["whitelist"]:
+			client.close()
+			continue
+
 		try:
 			for line in client.makefile().readlines():
 				disk = int(line)
