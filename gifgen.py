@@ -31,14 +31,14 @@ def genAnimation(broken):
 			cv2.FONT_HERSHEY_SIMPLEX, 1, color_broken, 3)
 
 	for i in range(0, len(locations)):
-		if i in broken:
+		if (i + 1) in broken:
 			continue
 		cv2.circle(img, locations[i], size, color_working, -1)
 
 	cv2.imwrite("tmp1.png", img)
 
 	for i in range(0, len(locations)):
-		if i not in broken:
+		if (i + 1) not in broken:
 			continue
 		cv2.circle(img, locations[i], size, color_broken, -1)
 

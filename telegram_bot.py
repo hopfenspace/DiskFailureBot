@@ -28,7 +28,7 @@ def demo(bot, update):
     broken = []
     for i in range(0, 8):
         if broken_bitset & (1 << i):
-            broken.append(i)
+            broken.append(i + 1)
 
     genAndRespond(update, broken)
 

@@ -15,7 +15,7 @@ def worker(failure_cb):
 		try:
 			for line in client.makefile().readlines():
 				disk = int(line)
-				if disk >= 0 and disk < config["disk_count"]:
+				if disk > 0 and disk <= config["disk_count"]:
 					broken.append(disk)
 
 			client.close()
