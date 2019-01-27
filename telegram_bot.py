@@ -1,13 +1,24 @@
 from telegram.ext import Updater, CommandHandler
 from subprocess import call
-import random
+import json, random
 
 from gifgen import genAnimation
+from failure_listener import startListener
+
+with open("./config.json", "r") as fd:
+	config = json.load(fd)
+
+updater = Updater(config["telegram_token"])
+
+def sendFailures(broken):
+    file = genAnimation(broken)
+    with open(file, "r") as fd:
+        updater.bot.send_animation(config["group_id"], fd)
 
 def genAndRespond(update, broken):
     file = genAnimation(broken)
     with open(file, "r") as fd:
-        update.message.reply_animation(fd)
+        res = update.message.reply_animation(fd)
 
 def status(bot, update):
     genAndRespond(update, [])
@@ -21,7 +32,7 @@ def demo(bot, update):
 
     genAndRespond(update, broken)
 
-updater = Updater("<telegram bot token here>")
+startListener(config, sendFailures)
 
 updater.dispatcher.add_handler(CommandHandler('status', status))
 updater.dispatcher.add_handler(CommandHandler('demo', demo))

@@ -1,0 +1,10 @@
+{
+	"telegram_token": "<telegram bot token here>",
+	"group_id": 0,
+
+	"disk_count": 8,
+
+	"bind": "0.0.0.0",
+	"port": 1337,
+	"whitelist": false
+}
