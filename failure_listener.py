@@ -1,4 +1,4 @@
-import socket, threading, atexit
+import socket, ssl, threading, atexit
 
 config = None
 
@@ -8,23 +8,26 @@ def worker(failure_cb):
 	sock.listen(1)
 	atexit.register(lambda: sock.close())
 
+	context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH, cafile=config["cert-authority"])
+	context.verify_mode = ssl.CERT_REQUIRED
+	context.load_cert_chain(certfile=config["cert"], keyfile=config["key"])
+
 	while True:
-		client, addr = sock.accept()
 		broken = []
 
-		if config["whitelist"] and addr[0] not in config["whitelist"]:
-			client.close()
-			continue
-
 		try:
+			client, addr = sock.accept()
+			client = context.wrap_socket(client, server_side=True)
+
 			for line in client.makefile().readlines():
 				disk = int(line)
 				if disk > 0 and disk <= config["disk_count"]:
 					broken.append(disk)
 
-			client.close()
 		except Exception as e:
 			print e
+		finally:
+			client.close()
 
 		if len(broken) > 0:
 			failure_cb(broken)
