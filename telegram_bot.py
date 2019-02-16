@@ -13,6 +13,9 @@ currentlyBroken = []
 
 def sendFailures(broken):
     global currentlyBroken
+
+    if currentlyBroken == broken:
+        return
     currentlyBroken = broken
 
     file = genAnimation(broken)

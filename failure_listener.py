@@ -24,13 +24,12 @@ def worker(failure_cb):
 				if disk > 0 and disk <= config["disk_count"]:
 					broken.append(disk)
 
+			failure_cb(broken)
 		except Exception as e:
-			print e
+			print(e)
 		finally:
 			client.close()
 
-		if len(broken) > 0:
-			failure_cb(broken)
 
 def startListener(_config, failure_cb):
 	global config
