@@ -11,6 +11,15 @@ with open("./config.json", "r") as fd:
 updater = Updater(config["telegram_token"])
 currentlyBroken = []
 
+def genCaption(broken):
+	if len(broken) == 0:
+		return "ALL DISKS OPERATIONAL"
+
+	broken = sorted(broken)
+	broken = map(str, broken)
+	broken = ", ".join(broken)
+	return "PLEASE REPLACE DISK(S) " + broken
+
 def sendFailures(broken):
 	global currentlyBroken
 
@@ -19,21 +28,21 @@ def sendFailures(broken):
 	currentlyBroken = broken
 
 	file = genAnimation(broken)
-	with open(file, "r") as fd:
-		updater.bot.send_animation(config["group_id"], fd)
+	with open(file, "rb") as fd:
+		updater.bot.send_animation(config["group_id"], fd, caption=genCaption(broken))
 
 def genAndRespond(update, broken):
 	file = genAnimation(broken)
-	with open(file, "r") as fd:
-		res = update.message.reply_animation(fd)
+	with open(file, "rb") as fd:
+		res = update.message.reply_animation(fd, caption=genCaption(broken))
 
 def status(bot, update):
 	genAndRespond(update, currentlyBroken)
 
 def demo(bot, update):
-	broken_bitset = random.randrange(1, 255)
+	broken_bitset = random.randrange(1, 2 ** config["disk_count"])
 	broken = []
-	for i in range(0, 8):
+	for i in range(0, config["disk_count"]):
 		if broken_bitset & (1 << i):
 			broken.append(i + 1)
 
