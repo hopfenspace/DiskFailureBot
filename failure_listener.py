@@ -1,8 +1,6 @@
 import socket, ssl, threading, atexit
 
-config = None
-
-def worker(failure_cb):
+def worker(config, failure_cb):
 	sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	sock.bind((config["bind"], config["port"]))
 	sock.listen(1)
@@ -12,29 +10,29 @@ def worker(failure_cb):
 	context.verify_mode = ssl.CERT_REQUIRED
 	context.load_cert_chain(certfile=config["cert"], keyfile=config["key"])
 
+	broken = config["disk_count"] * [False]
 	while True:
-		broken = []
-
 		try:
 			client, addr = sock.accept()
 			client = context.wrap_socket(client, server_side=True)
 
 			for line in client.makefile().readlines():
-				disk = int(line)
+				split = line.split(':')
+				disk = int(split[0])
 				if disk > 0 and disk <= config["disk_count"]:
-					broken.append(disk)
+					if split[1].strip() == '0':
+						broken[disk - 1] = False
+					else:
+						broken[disk - 1] = True
 
-			failure_cb(broken)
+			failure_cb([i + 1 for i, v in filter(lambda t: t[1], enumerate(broken))])
 		except Exception as e:
 			print(e)
 		finally:
 			client.close()
 
 
-def startListener(_config, failure_cb):
-	global config
-	config = _config
-
-	thread = threading.Thread(target=worker, args=(failure_cb, ))
+def startListener(config, failure_cb):
+	thread = threading.Thread(target=worker, args=(config, failure_cb, ))
 	thread.daemon = True
 	thread.start()
