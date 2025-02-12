@@ -36,10 +36,10 @@ def genAndRespond(update, broken):
 	with open(file, "rb") as fd:
 		res = update.message.reply_animation(fd, caption=genCaption(broken))
 
-def status(bot, update):
+def status(update, context):
 	genAndRespond(update, currentlyBroken)
 
-def demo(bot, update):
+def demo(update, context):
 	broken_bitset = random.randrange(1, 2 ** config["disk_count"])
 	broken = []
 	for i in range(0, config["disk_count"]):
